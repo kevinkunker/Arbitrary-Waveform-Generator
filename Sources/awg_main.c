@@ -39,6 +39,8 @@ const uint32_t triangle_data[] = {
 
 #define DAC_WRITE_BUFFER_LEN 100
 
+#define TIMER_MODULUS   2400000   /* bus clock cycles */
+
 uint32_t dac_write_buffer_1[DAC_WRITE_BUFFER_LEN] = {0};
 uint32_t dac_write_buffer_2[DAC_WRITE_BUFFER_LEN] = {0};
 uint32_t ARB_buffer_a[100] = {0};                                //ARB Waveform storage a
@@ -89,6 +91,16 @@ int main(void){
 	init_dac();
 	init_dac_pin();
 	
+	/* Enable PIT interrupt requests in the NVIC (interrupt controller)
+	 * Enables interrupt requests from the PIT and sets the IRQ level */
+	NVIC_DisableIRQ(PIT_IRQn);
+	NVIC_SetPriority(PIT_IRQn, 3);
+	NVIC_EnableIRQ(PIT_IRQn);
+	
+	/* PIT 0 setup with IRQ enabled and start the timer */
+	init_PIT(PIT_TIMER_0, TIMER_MODULUS, PIT_INT_ON);
+	start_PIT(PIT_TIMER_0);
+	
 	/************************************************************
 	* command interface task
      ************************************************************/
@@ -133,8 +145,11 @@ void Command_Interface_Task(void *pvParameters){
 }
 
 void PIT_IRQHandler(){
+	
 	static int i = 0;
-	        
+	
+	clear_PIT_int_flag(PIT_TIMER_0);	/* acknowledge the IRQ in the timer*/
+	
 	switch(i){
 		case 0:
 			set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 1);
@@ -148,4 +163,5 @@ void PIT_IRQHandler(){
 	}
 	
 	set_dac_output(read_ptr[i++] >> dac_bit_shift);
+	return;
 }
