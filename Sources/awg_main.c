@@ -50,7 +50,11 @@ uint32_t *read_ptr = dac_write_buffer_2;
 uint32_t dac_bit_shift = 0;
 StreamBufferHandle_t  UART_Rx_StreamHandle;
 
+/* Function Prototypes */
 void Command_Interface_Task(void *pvParameters);
+
+/* Handles */
+StreamBufferHandle_t  UART_Rx_StreamHandle;
 
 int main(void){
 	/************************************************************
@@ -135,6 +139,9 @@ int main(void){
 		return 0;
 	
 }
+
+enum CommandStates{COMMAND_IDLE, COMMAND_START,
+};
 
 
 void Command_Interface_Task(void *pvParameters){
