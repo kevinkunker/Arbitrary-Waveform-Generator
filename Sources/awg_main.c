@@ -34,6 +34,7 @@ uint32_t dac_write_buffer_1[100] = {0};
 uint32_t dac_write_buffer_2[100] = {0};
 uint32_t *write_ptr = dac_write_buffer_1;
 uint32_t *read_ptr = dac_write_buffer_2;
+uint32_t dac_bit_shift = 0;
 
 int main(void){
 	/************************************************************
@@ -76,5 +77,7 @@ int main(void){
 }
 
 void PIT_IRQHandler(){
+	static int i = 0;
+	set_dac_output(read_ptr[i] >> dac_bit_shift);
 	
 }
