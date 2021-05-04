@@ -30,6 +30,11 @@ const uint32_t triangle_data[] = {
 #include "triangle_data_100_points.txt"
 };
 
+uint32_t dac_write_buffer_1[100] = {0};
+uint32_t dac_write_buffer_2[100] = {0};
+uint32_t *write_ptr = dac_write_buffer_1;
+uint32_t *read_ptr = dac_write_buffer_2;
+
 int main(void){
 	/************************************************************
 	 * Set the main clock to 48 MHz 
@@ -68,4 +73,8 @@ int main(void){
 	 ************************************************************/
 	init_dac();
 	init_dac_pin();
+}
+
+void PIT_IRQHandler(){
+	
 }
