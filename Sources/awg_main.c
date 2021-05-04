@@ -31,9 +31,10 @@ const uint32_t triangle_data[] = {
 };
 
 #define UART0_IRQ_PRIORITY	2
+#define DAC_WRITE_BUFFER_LEN 100
 
-uint32_t dac_write_buffer_1[100] = {0};
-uint32_t dac_write_buffer_2[100] = {0};
+uint32_t dac_write_buffer_1[DAC_WRITE_BUFFER_LEN] = {0};
+uint32_t dac_write_buffer_2[DAC_WRITE_BUFFER_LEN] = {0};
 uint32_t ARB_buffer_a[100] = {0};                                //ARB Waveform storage a
 uint32_t ARB_buffer_b[100] = {0};                                //ARB waveform storage b
 uint32_t *write_ptr = dac_write_buffer_1;
@@ -99,6 +100,12 @@ int main(void){
 	 * start the scheduler. Should never return
 	 ************************************************************/
 	vTaskStartScheduler();	
+	
+	/************************************************************
+	* Enable PTB0 for sync output
+	************************************************************/
+	init_gpio_pin(GPIOB_PERIPHERAL, 0, 1);
+	set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 0);
 		
 	/************************************************************
 	 * should never reach here unless something goes wrong 
@@ -118,6 +125,18 @@ void Command_Interface_Task(void *pvParameters){
 
 void PIT_IRQHandler(){
 	static int i = 0;
-	set_dac_output(read_ptr[i] >> dac_bit_shift);
+	        
+	switch(i){
+		case 0:
+			set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 1);
+			break;
+		case DAC_WRITE_BUFFER_LEN/2:
+			set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 0);
+			break;
+		case DAC_WRITE_BUFFER_LEN:
+			i = 0;
+			break;
+	}
 	
+	set_dac_output(read_ptr[i++] >> dac_bit_shift);
 }
