@@ -15,7 +15,6 @@
 #include "analog.h"
 #include "KL25Z_NVIC.h"
 #include "KL25Z_pit.h"
-#include "KL25Z_gpio.h"
 
 /* FreeRTOS */
 #include "FreeRTOS.h"
@@ -31,10 +30,12 @@ const uint32_t triangle_data[] = {
 #include "triangle_data_100_points.txt"
 };
 
-#define DAC_WRITE_BUFFER_LEN 100
+#define UART0_IRQ_PRIORITY	2
 
-uint32_t dac_write_buffer_1[DAC_WRITE_BUFFER_LEN] = {0};
-uint32_t dac_write_buffer_2[DAC_WRITE_BUFFER_LEN] = {0};
+uint32_t dac_write_buffer_1[100] = {0};
+uint32_t dac_write_buffer_2[100] = {0};
+uint32_t ARB_buffer_a[100] = {0};                                //ARB Waveform storage a
+uint32_t ARB_buffer_b[100] = {0};                                //ARB waveform storage b
 uint32_t *write_ptr = dac_write_buffer_1;
 uint32_t *read_ptr = dac_write_buffer_2;
 uint32_t dac_bit_shift = 0;
@@ -61,7 +62,7 @@ int main(void){
 	 *  Startup the OpenSDA UART (UART0)
 	 ************************************************************/
 	init_opensda_uart_pins();
-	init_opensda_uart(OPENSDA_UART_BAUD_CLOCK_MCGPLLCLKDIV2, OPENSDA_UART_BAUD_115200,
+	init_opensda_uart(OPENSDA_UART_BAUD_CLOCK_MCGPLLCLKDIV2, OPENSDA_UART_BAUD_57600,
     				OPENSDA_UART_STOP_BITS_1, OPENSDA_UART_PARITY_OFF, OPENSDA_UART_PARITY_EVEN);
 	
 	/* send out a welcome message */
@@ -78,24 +79,45 @@ int main(void){
 	init_dac();
 	init_dac_pin();
 	
-	init_gpio_pin(GPIOB_PERIPHERAL, 0, 1); // Enable PTB0 for output
-	set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 0);
+	/************************************************************
+	* command interface task
+     ************************************************************/
+	xTaskCreate(Command_Interface_Task,				    /* Pointer to the function that implements the task. */
+				"Command Interface Task",				/* Friendly name for debugging. */
+				100, 					                /* Stack depth (may need to be increased) */
+				NULL, 					                /* Task parameter, not used */
+				1,						                /* Task priority */
+				NULL);					                /* task handle, not used */
+	
+	/************************************************************
+     * create semaphores, queues, streams, etc.
+     ************************************************************/
+	   //add stream buffer for serial port
+	UART_Rx_StreamHandle = xStreamBufferCreate(UART_STREAM_SIZE, UART_STREAM_TRIG_LEVEL);
+	
+	/************************************************************
+	 * start the scheduler. Should never return
+	 ************************************************************/
+	vTaskStartScheduler();	
+		
+	/************************************************************
+	 * should never reach here unless something goes wrong 
+    ************************************************************/
+		for(;;) {}
+		return 0;
+	
+}
+
+
+void Command_Interface_Task(void *pvParameters){
+	
+	extern StreamBufferHandle_t UART_Rx_StreamHandle;   //buffer for reading serial port
+	
+	
 }
 
 void PIT_IRQHandler(){
 	static int i = 0;
+	set_dac_output(read_ptr[i] >> dac_bit_shift);
 	
-	switch(i){
-		case 0:
-			set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 1);
-			break;
-		case DAC_WRITE_BUFFER_LEN/2:
-			set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 0);
-			break;
-		case DAC_WRITE_BUFFER_LEN:
-			i = 0;
-			break;
-	}
-	
-	set_dac_output(read_ptr[i++] >> dac_bit_shift);
 }
