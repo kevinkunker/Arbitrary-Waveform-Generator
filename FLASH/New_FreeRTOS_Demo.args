@@ -12,6 +12,7 @@
 "./Sources/FreeRTOS/croutine.o"
 "./Sources/sa_mtb.o"
 "./Sources/mcg.o"
+"./Sources/awg_main.o"
 "./Sources/analog.o"
 "./Sources/Shield_pushbuttons.o"
 "./Sources/Shield_LEDs.o"

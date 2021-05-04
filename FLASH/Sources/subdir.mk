@@ -15,6 +15,7 @@ C_SRCS_QUOTED += \
 "../Sources/Shield_LEDs.c" \
 "../Sources/Shield_pushbuttons.c" \
 "../Sources/analog.c" \
+"../Sources/awg_main.c" \
 "../Sources/mcg.c" \
 "../Sources/sa_mtb.c" \
 
@@ -28,6 +29,7 @@ C_SRCS += \
 ../Sources/Shield_LEDs.c \
 ../Sources/Shield_pushbuttons.c \
 ../Sources/analog.c \
+../Sources/awg_main.c \
 ../Sources/mcg.c \
 ../Sources/sa_mtb.c \
 
@@ -41,6 +43,7 @@ OBJS += \
 ./Sources/Shield_LEDs.o \
 ./Sources/Shield_pushbuttons.o \
 ./Sources/analog.o \
+./Sources/awg_main.o \
 ./Sources/mcg.o \
 ./Sources/sa_mtb.o \
 
@@ -54,6 +57,7 @@ C_DEPS += \
 ./Sources/Shield_LEDs.d \
 ./Sources/Shield_pushbuttons.d \
 ./Sources/analog.d \
+./Sources/awg_main.d \
 ./Sources/mcg.d \
 ./Sources/sa_mtb.d \
 
@@ -67,6 +71,7 @@ OBJS_QUOTED += \
 "./Sources/Shield_LEDs.o" \
 "./Sources/Shield_pushbuttons.o" \
 "./Sources/analog.o" \
+"./Sources/awg_main.o" \
 "./Sources/mcg.o" \
 "./Sources/sa_mtb.o" \
 
@@ -80,6 +85,7 @@ C_DEPS_QUOTED += \
 "./Sources/Shield_LEDs.d" \
 "./Sources/Shield_pushbuttons.d" \
 "./Sources/analog.d" \
+"./Sources/awg_main.d" \
 "./Sources/mcg.d" \
 "./Sources/sa_mtb.d" \
 
@@ -93,6 +99,7 @@ OBJS_OS_FORMAT += \
 ./Sources/Shield_LEDs.o \
 ./Sources/Shield_pushbuttons.o \
 ./Sources/analog.o \
+./Sources/awg_main.o \
 ./Sources/mcg.o \
 ./Sources/sa_mtb.o \
 
@@ -170,9 +177,17 @@ Sources/analog.o: ../Sources/analog.c
 	@echo 'Finished building: $<'
 	@echo ' '
 
-Sources/mcg.o: ../Sources/mcg.c
+Sources/awg_main.o: ../Sources/awg_main.c
 	@echo 'Building file: $<'
 	@echo 'Executing target #10 $<'
+	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
+	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/awg_main.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/awg_main.o"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+Sources/mcg.o: ../Sources/mcg.c
+	@echo 'Building file: $<'
+	@echo 'Executing target #11 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/mcg.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/mcg.o"
 	@echo 'Finished building: $<'
@@ -180,7 +195,7 @@ Sources/mcg.o: ../Sources/mcg.c
 
 Sources/sa_mtb.o: ../Sources/sa_mtb.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #11 $<'
+	@echo 'Executing target #12 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/sa_mtb.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/sa_mtb.o"
 	@echo 'Finished building: $<'

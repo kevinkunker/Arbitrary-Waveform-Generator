@@ -15,6 +15,7 @@
 #include "analog.h"
 #include "KL25Z_NVIC.h"
 #include "KL25Z_pit.h"
+#include "KL25Z_gpio.h"
 
 /* FreeRTOS */
 #include "FreeRTOS.h"
