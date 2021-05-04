@@ -15,6 +15,7 @@
 #include "analog.h"
 #include "KL25Z_NVIC.h"
 #include "KL25Z_pit.h"
+#include "KL25Z_gpio.h"
 
 /* FreeRTOS */
 #include "FreeRTOS.h"
@@ -30,8 +31,10 @@ const uint32_t triangle_data[] = {
 #include "triangle_data_100_points.txt"
 };
 
-uint32_t dac_write_buffer_1[100] = {0};
-uint32_t dac_write_buffer_2[100] = {0};
+#define DAC_WRITE_BUFFER_LEN 100
+
+uint32_t dac_write_buffer_1[DAC_WRITE_BUFFER_LEN] = {0};
+uint32_t dac_write_buffer_2[DAC_WRITE_BUFFER_LEN] = {0};
 uint32_t *write_ptr = dac_write_buffer_1;
 uint32_t *read_ptr = dac_write_buffer_2;
 uint32_t dac_bit_shift = 0;
@@ -74,10 +77,25 @@ int main(void){
 	 ************************************************************/
 	init_dac();
 	init_dac_pin();
+	
+	init_gpio_pin(GPIOB_PERIPHERAL, 0, 1); // Enable PTB0 for output
+	set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 0);
 }
 
 void PIT_IRQHandler(){
 	static int i = 0;
-	set_dac_output(read_ptr[i] >> dac_bit_shift);
 	
+	switch(i){
+		case 0:
+			set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 1);
+			break;
+		case DAC_WRITE_BUFFER_LEN/2:
+			set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 0);
+			break;
+		case DAC_WRITE_BUFFER_LEN:
+			i = 0;
+			break;
+	}
+	
+	set_dac_output(read_ptr[i++] >> dac_bit_shift);
 }
