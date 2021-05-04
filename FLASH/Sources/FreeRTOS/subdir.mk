@@ -72,7 +72,7 @@ OBJS_OS_FORMAT += \
 # Each subdirectory must supply rules for building sources it contributes
 Sources/FreeRTOS/croutine.o: ../Sources/FreeRTOS/croutine.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #13 $<'
+	@echo 'Executing target #12 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/FreeRTOS/croutine.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/FreeRTOS/croutine.o"
 	@echo 'Finished building: $<'
@@ -80,7 +80,7 @@ Sources/FreeRTOS/croutine.o: ../Sources/FreeRTOS/croutine.c
 
 Sources/FreeRTOS/event_groups.o: ../Sources/FreeRTOS/event_groups.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #14 $<'
+	@echo 'Executing target #13 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/FreeRTOS/event_groups.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/FreeRTOS/event_groups.o"
 	@echo 'Finished building: $<'
@@ -88,7 +88,7 @@ Sources/FreeRTOS/event_groups.o: ../Sources/FreeRTOS/event_groups.c
 
 Sources/FreeRTOS/list.o: ../Sources/FreeRTOS/list.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #15 $<'
+	@echo 'Executing target #14 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/FreeRTOS/list.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/FreeRTOS/list.o"
 	@echo 'Finished building: $<'
@@ -96,7 +96,7 @@ Sources/FreeRTOS/list.o: ../Sources/FreeRTOS/list.c
 
 Sources/FreeRTOS/queue.o: ../Sources/FreeRTOS/queue.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #16 $<'
+	@echo 'Executing target #15 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/FreeRTOS/queue.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/FreeRTOS/queue.o"
 	@echo 'Finished building: $<'
@@ -104,7 +104,7 @@ Sources/FreeRTOS/queue.o: ../Sources/FreeRTOS/queue.c
 
 Sources/FreeRTOS/stream_buffer.o: ../Sources/FreeRTOS/stream_buffer.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #17 $<'
+	@echo 'Executing target #16 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/FreeRTOS/stream_buffer.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/FreeRTOS/stream_buffer.o"
 	@echo 'Finished building: $<'
@@ -112,7 +112,7 @@ Sources/FreeRTOS/stream_buffer.o: ../Sources/FreeRTOS/stream_buffer.c
 
 Sources/FreeRTOS/tasks.o: ../Sources/FreeRTOS/tasks.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #18 $<'
+	@echo 'Executing target #17 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/FreeRTOS/tasks.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/FreeRTOS/tasks.o"
 	@echo 'Finished building: $<'
@@ -120,7 +120,7 @@ Sources/FreeRTOS/tasks.o: ../Sources/FreeRTOS/tasks.c
 
 Sources/FreeRTOS/timers.o: ../Sources/FreeRTOS/timers.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #19 $<'
+	@echo 'Executing target #18 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/FreeRTOS/timers.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/FreeRTOS/timers.o"
 	@echo 'Finished building: $<'

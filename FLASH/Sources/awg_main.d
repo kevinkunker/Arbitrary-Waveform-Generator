@@ -1,5 +1,4 @@
-Sources/FreeRTOS_ADC_Experiment_main_Kevin_Kunker.o: \
- ../Sources/FreeRTOS_ADC_Experiment_main_Kevin_Kunker.c \
+Sources/awg_main.o: ../Sources/awg_main.c \
  C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/lib_ewl.prefix \
  C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/common.prefix \
  C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/ewl_c_version.h \
@@ -32,6 +31,7 @@ Sources/FreeRTOS_ADC_Experiment_main_Kevin_Kunker.o: \
  C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Project_Headers/MKL25Z4.h \
  ../Sources/OpenSDA_UART.h ../Sources/mcg.h ../Sources/KL25Z_port.h \
  ../Sources/analog.h ../Sources/KL25Z_NVIC.h ../Sources/KL25Z_pit.h \
+ ../Sources/KL25Z_gpio.h \
  C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Sources/FreeRTOS/include/FreeRTOS.h \
  C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/stddef.h \
  C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Sources/FreeRTOSConfig.h \
@@ -45,7 +45,9 @@ Sources/FreeRTOS_ADC_Experiment_main_Kevin_Kunker.o: \
  C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Sources/FreeRTOS/include/list.h \
  C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Sources/FreeRTOS/include/semphr.h \
  C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Sources/FreeRTOS/include/queue.h \
- C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Sources/FreeRTOS/include/stream_buffer.h
+ C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Sources/FreeRTOS/include/stream_buffer.h \
+ ../Sources/sine_data_100_points.txt \
+ ../Sources/triangle_data_100_points.txt
 
 C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/lib_ewl.prefix:
 
@@ -119,6 +121,8 @@ C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Project_Headers/MKL25Z4.h:
 
 ../Sources/KL25Z_pit.h:
 
+../Sources/KL25Z_gpio.h:
+
 C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Sources/FreeRTOS/include/FreeRTOS.h:
 
 C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/stddef.h:
@@ -146,3 +150,7 @@ C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Sources/FreeRTOS/include/semphr.h:
 C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Sources/FreeRTOS/include/queue.h:
 
 C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Sources/FreeRTOS/include/stream_buffer.h:
+
+../Sources/sine_data_100_points.txt:
+
+../Sources/triangle_data_100_points.txt:

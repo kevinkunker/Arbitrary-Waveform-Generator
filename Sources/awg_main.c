@@ -31,7 +31,12 @@ const uint32_t triangle_data[] = {
 #include "triangle_data_100_points.txt"
 };
 
+/* serial parameters */
+#define UART_STREAM_SIZE		20
+#define UART_STREAM_TRIG_LEVEL	1
+#define RX_MESSAGE_BUFFER_SIZE	20
 #define UART0_IRQ_PRIORITY	2
+
 #define DAC_WRITE_BUFFER_LEN 100
 
 uint32_t dac_write_buffer_1[DAC_WRITE_BUFFER_LEN] = {0};
@@ -41,6 +46,9 @@ uint32_t ARB_buffer_b[100] = {0};                                //ARB waveform 
 uint32_t *write_ptr = dac_write_buffer_1;
 uint32_t *read_ptr = dac_write_buffer_2;
 uint32_t dac_bit_shift = 0;
+StreamBufferHandle_t  UART_Rx_StreamHandle;
+
+void Command_Interface_Task(void *pvParameters);
 
 int main(void){
 	/************************************************************

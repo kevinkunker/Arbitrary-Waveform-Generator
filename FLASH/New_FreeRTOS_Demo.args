@@ -21,7 +21,6 @@
 "./Sources/KL25Z_pit.o"
 "./Sources/KL25Z_gpio.o"
 "./Sources/KL25Z_NVIC.o"
-"./Sources/FreeRTOS_ADC_Experiment_main_Kevin_Kunker.o"
 -mcpu=cortex-m0
 -mthumb
 -mfloat-abi=soft

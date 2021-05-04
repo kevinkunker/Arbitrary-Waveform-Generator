@@ -95,7 +95,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="Sources/FreeRTOS_Semaphore_Lab_main_Kevin_Kunker.c|Sources/FreeRTOS_Queue_Lab_main_Kevin_Kunker.c|Sources/FreeRTOS_Lab_1_main_Kevin_Kunker.c|Sources/Shield_buttons.c|Sources/Shield_buttons.h|Sources/FreeRTOS/portable/MemMang/heap_5.c|Sources/FreeRTOS/portable/MemMang/heap_4.c|Sources/FreeRTOS/portable/MemMang/heap_3.c|Sources/FreeRTOS/portable/MemMang/heap_2.c|Sources/main.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="Sources/FreeRTOS_ADC_Experiment_main_Kevin_Kunker.c|Sources/FreeRTOS_Semaphore_Lab_main_Kevin_Kunker.c|Sources/FreeRTOS_Queue_Lab_main_Kevin_Kunker.c|Sources/FreeRTOS_Lab_1_main_Kevin_Kunker.c|Sources/Shield_buttons.c|Sources/Shield_buttons.h|Sources/FreeRTOS/portable/MemMang/heap_5.c|Sources/FreeRTOS/portable/MemMang/heap_4.c|Sources/FreeRTOS/portable/MemMang/heap_3.c|Sources/FreeRTOS/portable/MemMang/heap_2.c|Sources/main.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
