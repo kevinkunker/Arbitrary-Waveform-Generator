@@ -140,16 +140,112 @@ int main(void){
 	
 }
 
-enum CommandStates{COMMAND_IDLE, COMMAND_START,
-};
+enum CommandStates{COMMAND_IDLE, COMMAND_START, COMMAND_ATTENUATION, COMMAND_FREQUENCY, COMMAND_WAVEFORM_SEL,
+	               COMMAND_DAC_WB, COMMAND_RSTATUS, COMMAND_ARB_WR, COMMAND_ARB_RD};
 
 
 void Command_Interface_Task(void *pvParameters){
 	
 	extern StreamBufferHandle_t UART_Rx_StreamHandle;   //buffer for reading serial port
+	BaseType_t StreamStatus;
+	char rx_char, cmd_state;
 	
+	//enable uart interrupt here?
 	
-}
+	cmd_state = COMMAND_IDLE;
+	for( ;; ){
+		
+		//receive a character from stream buffer
+		StreamStatus = xStreamBufferReceive(UART_Rx_StreamHandle, &rx_char, 1, portMAX_DELAY);
+		
+		if (StreamStatus != 0){
+					
+					/* check for a "/" to start command processing */
+					switch(cmd_state){
+						
+					case COMMAND_IDLE :
+							/* check for "/" */
+							if (rx_char == ('/'))
+							{
+								cmd_state = COMMAND_START;
+							}
+							break;
+							
+					case COMMAND_START :
+						 
+						    if ((rx_char == ('a')) || (rx_char == ('A'))){          //Set Attenuation
+						    	cmd_state = COMMAND_ATTENUATION;
+							}
+							
+						    if ((rx_char == ('f')) || (rx_char == ('F'))){          //Set Frequency
+							    cmd_state = COMMAND_FREQUENCY;
+							}
+							
+						    if ((rx_char == ('v')) || (rx_char == ('V'))){          //Select Waveform
+						    	cmd_state = COMMAND_WAVEFORM_SEL;
+							}
+							
+						    if ((rx_char == ('b')) || (rx_char == ('B'))){          //Set DAC Write Buffer for output to PIT_IRQHandler
+							    cmd_state = COMMAND_DAC_WB;
+							}
+							
+						    if ((rx_char == ('s')) || (rx_char == ('S'))){          //Return Status
+								cmd_state = COMMAND_RSTATUS;							
+							}
+							
+						    if ((rx_char == ('w')) || (rx_char == ('W'))){          //ARB data write
+						        cmd_state = COMMAND_ARB_WR;
+						    }
+							
+						    if ((rx_char == ('r')) || (rx_char == ('R'))){          //ARB data read
+						        cmd_state = COMMAND_ARB_RD;
+						    }
+						    
+						    else{
+						    	opensda_uart_transmit_string("/E 1");              //Error message for unrecognized command
+						    	cmd_state = COMMAND_IDLE;						   //Idle state if invalid character
+						    }
+							break;
+							
+					case COMMAND_ATTENUATION :
+						    if (rx_char == (' ')){                                  //Check for space between command and parameter
+						    	
+						    }
+						
+							break;
+					case COMMAND_FREQUENCY :
+						
+							break;
+					case COMMAND_WAVEFORM_SEL :
+						
+							break;
+					case COMMAND_DAC_WB :
+						
+							break;
+					case COMMAND_RSTATUS :
+						
+							break;
+					case COMMAND_ARB_WR :
+						
+							break;
+					case COMMAND_ARB_RD :
+						
+							
+					
+							
+					default :
+							cmd_state = COMMAND_IDLE;                                           //Default state
+							break;
+	
+							
+							
+   } //switch case
+	
+  }	// stream status
+	
+ } //forever loop
+	
+} //Command Interface Task
 
 void PIT_IRQHandler(){
 	
