@@ -30,7 +30,7 @@ OBJS_OS_FORMAT += \
 # Each subdirectory must supply rules for building sources it contributes
 Sources/FreeRTOS/portable/MemMang/heap_1.o: ../Sources/FreeRTOS/portable/MemMang/heap_1.c
 	@echo 'Building file: $<'
-	@echo 'Executing target #19 $<'
+	@echo 'Executing target #20 $<'
 	@echo 'Invoking: ARM Ltd Windows GCC C Compiler'
 	"$(ARMSourceryDirEnv)/arm-none-eabi-gcc" "$<" @"Sources/FreeRTOS/portable/MemMang/heap_1.args" -MMD -MP -MF"$(@:%.o=%.d)" -o"Sources/FreeRTOS/portable/MemMang/heap_1.o"
 	@echo 'Finished building: $<'

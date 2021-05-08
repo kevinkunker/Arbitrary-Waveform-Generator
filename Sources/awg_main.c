@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include "derivative.h"
 #include "OpenSDA_UART.h"
 #include "mcg.h"
@@ -16,7 +17,7 @@
 #include "KL25Z_NVIC.h"
 #include "KL25Z_pit.h"
 #include "KL25Z_gpio.h"
-
+#include "int_to_string_and_string_to_int.h"
 
 /* FreeRTOS */
 #include "FreeRTOS.h"
@@ -45,19 +46,11 @@ const uint32_t triangle_data[] = {
 
 uint32_t dac_write_buffer_1[DAC_WRITE_BUFFER_LEN] = {0};
 uint32_t dac_write_buffer_2[DAC_WRITE_BUFFER_LEN] = {0};
-uint32_t ARB_buffer_a[DAC_WRITE_BUFFER_LEN] = {0};                                //ARB Waveform storage a
-uint32_t ARB_buffer_b[DAC_WRITE_BUFFER_LEN] = {0};                                //ARB waveform storage b
+uint32_t ARB_buffer_a[DAC_WRITE_BUFFER_LEN] = {0};
+uint32_t ARB_buffer_b[DAC_WRITE_BUFFER_LEN] = {0};
 uint32_t *write_ptr = dac_write_buffer_1;
 uint32_t *read_ptr = dac_write_buffer_2;
 uint32_t dac_bit_shift = 0;
-
-uint32_t parameter_value;                                                         //parameter value to pass into command functions
-uint32_t data_value;                                                              //data value for ARB buffer parameter
-
-char serial_in[STRING_LENGTH];													  //Serial input string
-char *ser_in = serial_in;                                                         //Pointer to serial_in string
-
-enum CommandStates{COMMAND_IDLE, COMMAND_START};                                  //state machine enumerations
 
 /* Function Prototypes */
 void Command_Interface_Task(void *pvParameters);
@@ -151,144 +144,106 @@ int main(void){
 	
 }
 
+enum CommandState {
+	COMMAND_IDLE,
+	COMMAND_START,
+	COMMAND_END
+};
+
+#define CMD_BUF_LEN 20
+
 void Command_Interface_Task(void *pvParameters){
 	
-	extern StreamBufferHandle_t UART_Rx_StreamHandle;   //buffer for reading UART0_IRQHandler
-	extern char serial_in[STRING_LENGTH];
-	extern uint32_t parameter_value;
-	extern uint32_t data_value;
-	
+	extern StreamBufferHandle_t UART_Rx_StreamHandle;
 	BaseType_t StreamStatus;
+	char rx_char, cmd_state;
+	char command_buffer[CMD_BUF_LEN] = {'\0'};
+	int i = 0;
 	
-	char rx_char, cmd, cmd_state;
+	UART0_C2 |= UART0_C2_RIE_MASK;		/* enable the UART receive interrupt */
 	
-	char temp[STRING_LENGTH] = {'\0'};         //buffer for reversing string
-	char *tmp = temp;                          //pointer for temp buffer
-	
-	char data[STRING_LENGTH] = {'\0'};         //buffer for data parameter
-	char *dat = data;                          //pointer for data buffer
-	
-	
-	static int i = 0;
-	static int j,k,l;
-	static int scount = 0;                              //space counter variable
-	
-	UART0_C2 |= UART0_C2_RIE_MASK;                      //Enable UART0 interrupt
-	
-	cmd_state = COMMAND_IDLE;                           //Initialize state machine
-	
-	for( ;; ){
+	cmd_state = COMMAND_IDLE;
+	for(;;){
+		/* receive a character from the stream buffer with max delay, data in rx_char */
+		StreamStatus = xStreamBufferReceive(UART_Rx_StreamHandle, &rx_char, 1, 0);
 		
-		//receive a character from stream buffer
-		StreamStatus = xStreamBufferReceive(UART_Rx_StreamHandle, &rx_char, 1, portMAX_DELAY);
-		
-		if (StreamStatus != 0){
-					
-					
-					switch(cmd_state){
-						
-					case COMMAND_IDLE :
-						/* check for a "/" to start command processing */
-							if (rx_char == ('/'))
-							{   
-								cmd_state = COMMAND_START;
+		if(StreamStatus != 0){
+			
+			/* check for a "/" to start command processing. Throw out anything else */
+			switch(cmd_state){
+				case COMMAND_IDLE:
+					/* check for "/" */
+					if(rx_char == '/'){
+						cmd_state = COMMAND_START;
+					}
+					break;
+				case COMMAND_START:
+					command_buffer[i++] = rx_char;
+					if(rx_char == '\n' || rx_char == '\r' || i == CMD_BUF_LEN){
+						cmd_state = COMMAND_END, i = 0;
+					}
+					break;
+				case COMMAND_END:
+					switch(*strtok(command_buffer, " ")){
+						case 'A':
+						case 'a':
+							/* Set Attenuation */
+							switch(ascii_to_uint32(strtok(NULL, " "))){
+								case 1:
+									dac_bit_shift = 0;
+									break;
+								case 2:
+									dac_bit_shift = 1;
+									break;
+								case 4:
+									dac_bit_shift = 2;
+									break;
+								case 8:
+									dac_bit_shift = 3;
+									break;
+								case 16:
+									dac_bit_shift = 4;
+									break;
+								case 32:
+									dac_bit_shift = 5;
+									break;
+								case 64:
+									dac_bit_shift = 6;
+									break;
+								case 128:
+									dac_bit_shift = 7;
+									break;
 							}
 							break;
-							
-					case COMMAND_START :                              
-						//build a string from serial input
-							
-							while (rx_char != '\n'){                   //read in string
-								
-								serial_in[i] = rx_char;
-								i++;
-							}
-							serial_in[i+1] = '\0';					   //terminate string
-							
-				
-						//Parse out command and parameter(s)
-							
-							for (k=0; serial_in[k] !='\0'; k++){
-								
-								if (scount == 0 && serial_in[k] != ' ' ){
-									cmd = serial_in[k];              //get the command value
-								}
-								if (scount == 1 && serial_in[k] >= '0' && serial_in[k] <= '9'){
-									*tmp = serial_in[k];             //get the parameter value
-									 tmp++;                          //put in temporary buffer
-								}
-								if (scount == 2 && serial_in[k] >= '0' && serial_in[k] <= '9'){
-									*dat = serial_in[k];             //get the data value (if needed)
-									 dat++;                          //put in temporary buffer
-								}
-								if (serial_in[k] == ' '){            //if a space character is found
-									scount = scount + 1;
-								}
-							}
-							    
-							 
-						//convert ascii strings to integers for parameter / data use
-							
-							for (j=0; j <= STRING_LENGTH; j++){
-								if(temp[j] >= '0' && temp[j] <= '9'){
-									
-									parameter_value = parameter_value * 10;
-									parameter_value = parameter_value + temp[j] - '0';
-								}
-							
-								if(data[j] >= '0' && data[j] <= '9'){
-																
-									data_value = data_value * 10;
-									data_value = data_value + data[j] - '0';
-								}
-							}
-							
-						//reset some variables for next use
-							    
-							    scount = 0;
-							
-								for (l=0; l <= STRING_LENGTH; l++){
-									serial_in[l] = 0;
-									temp[l] = '\0';
-									data[l] = '\0';
-								}
-								
-							cmd_state = COMMAND_IDLE;
+						case 'F':
+						case 'f':
+							/* Set Frequency */
 							break;
-							
-					default :
-							cmd_state = COMMAND_IDLE;                    //Default state
+						case 'V':
+						case 'v':
+							/* Select Waveform */
 							break;
-	
-   } //switch case
-  }	// stream status
-		
-		if (cmd == 'a' || cmd == 'A'){                                  //Set Attenuation
-			//Function call here
+						case 'B':
+						case 'b':
+							/* Set Current ARB Buffer */
+							break;
+						case 'S':
+						case 's':
+							/* Return Status */
+							break;
+						default:
+							/* Error messages */
+							break;
+					}
+					cmd_state = COMMAND_IDLE;
+					break;
+				default:
+					cmd_state = COMMAND_IDLE;
+					break;
 			}
-		if (cmd == 'f' || cmd == 'F'){                                  //Set Frequency
-			
-		    }
-		if (cmd == 'v' || cmd == 'V'){                                  //Select Waveform
-			
-		    }
-		if (cmd == 'b' || cmd == 'B'){                                  //Set Current ARB buffer to output
-			
-		    }
-		if (cmd == 's' || cmd == 'S'){                                  //Return Status
-			
 		}
-		else{
-			opensda_uart_transmit_string("/E 1 \r\n");                  //unrecognized command
-		}
-		
-		//reset parameter and data integers for next use
-		parameter_value = 0;
-		data_value = 0;
-								
-	
- } //forever loop
-} //Command Interface Task
+	}
+}
 
 void PIT_IRQHandler(){
 	

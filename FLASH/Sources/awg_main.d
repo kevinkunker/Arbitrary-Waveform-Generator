@@ -27,11 +27,14 @@ Sources/awg_main.o: ../Sources/awg_main.c \
  C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/stdarg.h \
  C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/cstdarg \
  C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/arm/stdarg.ARM.h \
+ C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/string.h \
+ C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/cstring \
+ C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/string_api.h \
  C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Project_Headers/derivative.h \
  C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Project_Headers/MKL25Z4.h \
  ../Sources/OpenSDA_UART.h ../Sources/mcg.h ../Sources/KL25Z_port.h \
  ../Sources/analog.h ../Sources/KL25Z_NVIC.h ../Sources/KL25Z_pit.h \
- ../Sources/KL25Z_gpio.h \
+ ../Sources/KL25Z_gpio.h ../Sources/int_to_string_and_string_to_int.h \
  C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Sources/FreeRTOS/include/FreeRTOS.h \
  C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/stddef.h \
  C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Sources/FreeRTOSConfig.h \
@@ -105,6 +108,12 @@ C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/cstdarg:
 
 C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/arm/stdarg.ARM.h:
 
+C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/string.h:
+
+C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/cstring:
+
+C:/Freescale/CW\ MCU\ v11.1/MCU/ARM_GCC_Support/ewl/EWL_C/include/string_api.h:
+
 C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Project_Headers/derivative.h:
 
 C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Project_Headers/MKL25Z4.h:
@@ -122,6 +131,8 @@ C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Project_Headers/MKL25Z4.h:
 ../Sources/KL25Z_pit.h:
 
 ../Sources/KL25Z_gpio.h:
+
+../Sources/int_to_string_and_string_to_int.h:
 
 C:/Users/TJKun/workspace/FreeRTOS_Lab_1/Sources/FreeRTOS/include/FreeRTOS.h:
 
