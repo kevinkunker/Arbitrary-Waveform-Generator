@@ -187,7 +187,8 @@ void Command_Interface_Task(void *pvParameters){
                                 		for(i = 0; i < CMD_BUF_LEN - 1; i++){
                                 			if(command_buffer[i++] == ' '){
                                 				if(command_buffer[i] == ' '){
-                                					// Framing error
+                                					/* Framing error */
+                                					opensda_uart_transmit_string("/E 4");
                                 				}
                                 			}
                                 		}
@@ -221,6 +222,9 @@ void Command_Interface_Task(void *pvParameters){
                                                                 case 128:
                                                                         dac_bit_shift = 7;
                                                                         break;
+                                                                default:
+                                                                		opensda_uart_transmit_string("/E 2");
+                                                                		break;
                                                         }
                                                         break;
                                                 case 'F':
@@ -239,6 +243,9 @@ void Command_Interface_Task(void *pvParameters){
                                                             case 1000:
                                                                 set_PIT_modulus(PIT_TIMER_0, 2400);
                                                                 break;
+                                                            default:
+                                                            	opensda_uart_transmit_string("/E 2");
+                                                            	break;
                                                         }
                                                         break;
                                                 case 'V':
@@ -253,6 +260,14 @@ void Command_Interface_Task(void *pvParameters){
                                                 case 's':
                                                         /* Return Status */
                                                         break;
+                                                case 'W':
+                                                case 'w':
+                                                		/* Arb Data Write */
+                                                		break;
+                                                case 'R':
+                                                case 'r':
+                                                		/* Arb Data Read */
+                                                		break;
                                                 default:
                                                         /* Error messages */
                                                         break;
@@ -260,6 +275,8 @@ void Command_Interface_Task(void *pvParameters){
                                         cmd_state = COMMAND_IDLE;
                                         break;
                                 default:
+                                		/* Unrecognized command */
+                                		opensda_uart_transmit_string("/E 1");
                                         cmd_state = COMMAND_IDLE;
                                         break;
                         }
