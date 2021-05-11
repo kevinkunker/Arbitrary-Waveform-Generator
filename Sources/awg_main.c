@@ -42,14 +42,15 @@ const uint32_t triangle_data[] = {
 #define DAC_WRITE_BUFFER_LEN 100
 #define STRING_LENGTH 10 
 
-#define TIMER_MODULUS   2400000   /* bus clock cycles */
 
+uint32_t timer_modulus = 2400000;                               /* bus clock cycles */
 uint32_t dac_write_buffer_1[DAC_WRITE_BUFFER_LEN] = {0};
 uint32_t dac_write_buffer_2[DAC_WRITE_BUFFER_LEN] = {0};
 uint32_t ARB_buffer_a[DAC_WRITE_BUFFER_LEN] = {0};
 uint32_t ARB_buffer_b[DAC_WRITE_BUFFER_LEN] = {0};
 uint32_t *write_ptr = dac_write_buffer_1;
 uint32_t *read_ptr = dac_write_buffer_2;
+uint32_t *current_arb_buffer = ARB_buffer_a;
 uint32_t dac_bit_shift = 0;
 
 /* Function Prototypes */
@@ -106,7 +107,7 @@ int main(void){
         NVIC_EnableIRQ(PIT_IRQn);
         
         /* PIT 0 setup with IRQ enabled and start the timer */
-        init_PIT(PIT_TIMER_0, TIMER_MODULUS, PIT_INT_ON);
+        init_PIT(PIT_TIMER_0, timer_modulus, PIT_INT_ON);
         start_PIT(PIT_TIMER_0);
         
         /************************************************************
@@ -200,27 +201,35 @@ void Command_Interface_Task(void *pvParameters){
                                                         switch(ascii_to_uint32(strtok(NULL, " "))){
                                                                 case 1:
                                                                         dac_bit_shift = 0;
+                                                                        opensda_uart_transmit_string("/OK /r/n");
                                                                         break;
                                                                 case 2:
                                                                         dac_bit_shift = 1;
+                                                                        opensda_uart_transmit_string("/OK /r/n");
                                                                         break;
                                                                 case 4:
                                                                         dac_bit_shift = 2;
+                                                                        opensda_uart_transmit_string("/OK /r/n");
                                                                         break;
                                                                 case 8:
                                                                         dac_bit_shift = 3;
+                                                                        opensda_uart_transmit_string("/OK /r/n");
                                                                         break;
                                                                 case 16:
                                                                         dac_bit_shift = 4;
+                                                                        opensda_uart_transmit_string("/OK /r/n");
                                                                         break;
                                                                 case 32:
                                                                         dac_bit_shift = 5;
+                                                                        opensda_uart_transmit_string("/OK /r/n");
                                                                         break;
                                                                 case 64:
                                                                         dac_bit_shift = 6;
+                                                                        opensda_uart_transmit_string("/OK /r/n");
                                                                         break;
                                                                 case 128:
                                                                         dac_bit_shift = 7;
+                                                                        opensda_uart_transmit_string("/OK /r/n");
                                                                         break;
                                                                 default:
                                                                 		opensda_uart_transmit_string("/E 2");
@@ -232,16 +241,24 @@ void Command_Interface_Task(void *pvParameters){
                                                         /* Set Frequency */
                                                         switch(ascii_to_uint32(strtok(NULL, " "))){
                                                             case 1:
-                                                                set_PIT_modulus(PIT_TIMER_0, 2400000);
+                                                            	timer_modulus = 24000000;
+                                                                set_PIT_modulus(PIT_TIMER_0, timer_modulus);
+                                                                opensda_uart_transmit_string("/OK /r/n");
                                                                 break;
                                                             case 10:
-                                                                set_PIT_modulus(PIT_TIMER_0, 240000);
+                                                                timer_modulus = 2400000;
+                                                            	set_PIT_modulus(PIT_TIMER_0, timer_modulus);
+                                                                opensda_uart_transmit_string("/OK /r/n");
                                                                 break;
                                                             case 100:
-                                                                set_PIT_modulus(PIT_TIMER_0, 24000);
+                                                                timer_modulus = 240000;
+                                                            	set_PIT_modulus(PIT_TIMER_0, timer_modulus);
+                                                                opensda_uart_transmit_string("/OK /r/n");
                                                                 break;
                                                             case 1000:
-                                                                set_PIT_modulus(PIT_TIMER_0, 2400);
+                                                            	timer_modulus = 24000; 
+                                                                set_PIT_modulus(PIT_TIMER_0, timer_modulus);
+                                                                opensda_uart_transmit_string("/OK /r/n");
                                                                 break;
                                                             default:
                                                             	opensda_uart_transmit_string("/E 2");
@@ -251,15 +268,74 @@ void Command_Interface_Task(void *pvParameters){
                                                 case 'V':
                                                 case 'v':
                                                         /* Select Waveform */
+                                                		switch(*strtok(NULL, " ")){
+                                                			case 'S':
+                                                			case 's':
+                                                				memcpy(write_ptr, sine_data, DAC_WRITE_BUFFER_LEN);
+                                                				opensda_uart_transmit_string("/OK /r/n");
+                                                				break;
+                                                			case 'T':
+                                                			case 't':
+                                                				memcpy(write_ptr, triangle_data, DAC_WRITE_BUFFER_LEN);
+                                                				opensda_uart_transmit_string("/OK /r/n");
+                                                				break;
+                                                			case 'Q':
+                                                			case 'q':
+                                                				memset(write_ptr, 4095, DAC_WRITE_BUFFER_LEN/2);
+                                                				memset(write_ptr + 50, 0, DAC_WRITE_BUFFER_LEN/2);
+                                                				opensda_uart_transmit_string("/OK /r/n");
+                                                				break;
+                                                			case 'A':
+                                                			case 'a':
+                                                				memcpy(write_ptr, current_arb_buffer, DAC_WRITE_BUFFER_LEN);
+                                                				opensda_uart_transmit_string("/OK /r/n");
+                                                				break;
+                                                			default:
+                                                			    opensda_uart_transmit_string("/E 2");
+                                                			    break;
+                                                			
+                                                		}
                                                 		
                                                         break;
                                                 case 'B':
                                                 case 'b':
                                                         /* Set Current ARB Buffer */
+                                                		switch(*strtok(NULL, " ")){
+                                                			case 'A':
+                                                			case 'a':
+                                                				current_arb_buffer = ARB_buffer_a;
+                                                				opensda_uart_transmit_string("/OK /r/n");
+                                                				break;
+                                                			case 'B':
+                                                			case 'b':
+                                                				current_arb_buffer = ARB_buffer_b;
+                                                				opensda_uart_transmit_string("/OK /r/n");
+                                                				break;
+                                                			default:
+                                                			    opensda_uart_transmit_string("/E 2");
+                                                			    break;
+                                                		}
                                                         break;
                                                 case 'S':
                                                 case 's':
                                                         /* Return Status */
+                                                        {
+                                                        	char r_status[40] = "/S";
+															switch(timer_modulus){
+																case 24000000:
+																	strcat(r_status, "1");
+																	break;
+																case 2400000:
+																	strcat(r_status, "10");
+																	break;
+																case 240000:
+																	strcat(r_status, "100");
+																	break;
+																case 24000:
+																	strcat(r_status, "1000");
+																	break;																
+															}
+                                                        }
                                                         break;
                                                 case 'W':
                                                 case 'w':
@@ -271,13 +347,13 @@ void Command_Interface_Task(void *pvParameters){
                                                 		break;
                                                 default:
                                                         /* Error messages */
+                                                	    /* Unrecognized command */
+                                                        opensda_uart_transmit_string("/E 1");
                                                         break;
                                         }
                                         cmd_state = COMMAND_IDLE;
                                         break;
                                 default:
-                                		/* Unrecognized command */
-                                		opensda_uart_transmit_string("/E 1");
                                         cmd_state = COMMAND_IDLE;
                                         break;
                         }

@@ -17,11 +17,10 @@ void uint32_to_ascii(uint32_t data, char *string){
                 data /= 10;
         } while(data != 0);
         
-        int i, firstDigit = 9, numDigits = 1;
+        int i, firstDigit = 9;
         for(i = 0; i < MAX_DIGITS; i++){
                 if(digits[i] != 0){
-                        firstDigit = i;
-                        numDigits = MAX_DIGITS-firstDigit;
+                        firstDigit = i;                     
                         break;
                 }
         }
