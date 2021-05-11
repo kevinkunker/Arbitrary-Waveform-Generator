@@ -172,11 +172,11 @@ void Command_Interface_Task(void *pvParameters){
                         /* check for a "/" to start command processing. Throw out anything else */
                         switch(cmd_state){
                                 case COMMAND_IDLE:
-                                        /* check for "/" */
-                                        if(rx_char == '/'){
-                                                cmd_state = COMMAND_START;
-                                        }
-                                        break;
+									/* check for "/" */
+									if(rx_char == '/'){
+											cmd_state = COMMAND_START;
+									}
+									break;
                                 case COMMAND_START:
                                         command_buffer[i++] = rx_char;
                                         if(rx_char == '\n' || rx_char == '\r' || i == CMD_BUF_LEN){
@@ -184,6 +184,14 @@ void Command_Interface_Task(void *pvParameters){
                                         }
                                         break;
                                 case COMMAND_END:
+                                		for(i = 0; i < CMD_BUF_LEN - 1; i++){
+                                			if(command_buffer[i++] == ' '){
+                                				if(command_buffer[i] == ' '){
+                                					// Framing error
+                                				}
+                                			}
+                                		}
+                                		
                                         switch(*strtok(command_buffer, " ")){
                                                 case 'A':
                                                 case 'a':
