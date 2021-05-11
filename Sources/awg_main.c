@@ -220,24 +220,16 @@ void Command_Interface_Task(void *pvParameters){
                                                         /* Set Frequency */
                                                         switch(ascii_to_uint32(strtok(NULL, " "))){
                                                             case 1:
-                                                                stop_PIT(PIT_TIMER_0);
                                                                 set_PIT_modulus(PIT_TIMER_0, 2400000);
-                                                                start_PIT(PIT_TIMER_0);
                                                                 break;
                                                             case 10:
-                                                                stop_PIT(PIT_TIMER_0);
                                                                 set_PIT_modulus(PIT_TIMER_0, 240000);
-                                                                start_PIT(PIT_TIMER_0);
                                                                 break;
                                                             case 100:
-                                                                stop_PIT(PIT_TIMER_0);
                                                                 set_PIT_modulus(PIT_TIMER_0, 24000);
-                                                                start_PIT(PIT_TIMER_0);
                                                                 break;
                                                             case 1000:
-                                                                stop_PIT(PIT_TIMER_0);
                                                                 set_PIT_modulus(PIT_TIMER_0, 2400);
-                                                                start_PIT(PIT_TIMER_0);
                                                                 break;
                                                         }
                                                         break;
