@@ -241,22 +241,22 @@ void Command_Interface_Task(void *pvParameters){
                                                         /* Set Frequency */
                                                         switch(ascii_to_uint32(strtok(NULL, " "))){
                                                             case 1:
-                                                            	timer_modulus = 24000000;
+                                                            	timer_modulus = 2400000;
                                                                 set_PIT_modulus(PIT_TIMER_0, timer_modulus);
                                                                 opensda_uart_transmit_string("/OK \r\n");
                                                                 break;
                                                             case 10:
-                                                                timer_modulus = 2400000;
-                                                            	set_PIT_modulus(PIT_TIMER_0, timer_modulus);
-                                                            	opensda_uart_transmit_string("/OK \r\n");
-                                                                break;
-                                                            case 100:
                                                                 timer_modulus = 240000;
                                                             	set_PIT_modulus(PIT_TIMER_0, timer_modulus);
                                                             	opensda_uart_transmit_string("/OK \r\n");
                                                                 break;
+                                                            case 100:
+                                                                timer_modulus = 24000;
+                                                            	set_PIT_modulus(PIT_TIMER_0, timer_modulus);
+                                                            	opensda_uart_transmit_string("/OK \r\n");
+                                                                break;
                                                             case 1000:
-                                                            	timer_modulus = 24000; 
+                                                            	timer_modulus = 2400; 
                                                                 set_PIT_modulus(PIT_TIMER_0, timer_modulus);
                                                                 opensda_uart_transmit_string("/OK \r\n");
                                                                 break;
@@ -271,23 +271,55 @@ void Command_Interface_Task(void *pvParameters){
                                                 		switch(*strtok(NULL, " ")){
                                                 			case 'S':
                                                 			case 's':
-                                                				memcpy(write_ptr, sine_data, DAC_WRITE_BUFFER_LEN);
+                                                				memcpy(write_ptr, sine_data, sizeof dac_write_buffer_1);
+                                                				/* Swap Buffers */
+																if(write_ptr == dac_write_buffer_1){
+																	write_ptr = dac_write_buffer_2;
+																	read_ptr = dac_write_buffer_1;
+																} else {
+																	write_ptr = dac_write_buffer_1;
+																	read_ptr = dac_write_buffer_2;
+																}
                                                 				opensda_uart_transmit_string("/OK \r\n");
                                                 				break;
                                                 			case 'T':
                                                 			case 't':
-                                                				memcpy(write_ptr, triangle_data, DAC_WRITE_BUFFER_LEN);
+                                                				memcpy(write_ptr, triangle_data, sizeof dac_write_buffer_1);
+                                                				/* Swap Buffers */
+																if(write_ptr == dac_write_buffer_1){
+																	write_ptr = dac_write_buffer_2;
+																	read_ptr = dac_write_buffer_1;
+																} else {
+																	write_ptr = dac_write_buffer_1;
+																	read_ptr = dac_write_buffer_2;
+																}
                                                 				opensda_uart_transmit_string("/OK \r\n");
                                                 				break;
                                                 			case 'Q':
                                                 			case 'q':
-                                                				memset(write_ptr, 4095, DAC_WRITE_BUFFER_LEN/2);
-                                                				memset(write_ptr + 50, 0, DAC_WRITE_BUFFER_LEN/2);
+                                                				memset(write_ptr, 4095, (sizeof dac_write_buffer_1)/2);
+                                                				memset(write_ptr + 50, 0, (sizeof dac_write_buffer_1)/2);
+                                                				/* Swap Buffers */
+																if(write_ptr == dac_write_buffer_1){
+																	write_ptr = dac_write_buffer_2;
+																	read_ptr = dac_write_buffer_1;
+																} else {
+																	write_ptr = dac_write_buffer_1;
+																	read_ptr = dac_write_buffer_2;
+																}
                                                 				opensda_uart_transmit_string("/OK \r\n");
                                                 				break;
                                                 			case 'A':
                                                 			case 'a':
-                                                				memcpy(write_ptr, current_arb_buffer, DAC_WRITE_BUFFER_LEN);
+                                                				memcpy(write_ptr, current_arb_buffer, sizeof dac_write_buffer_1);
+                                                				/* Swap Buffers */
+																if(write_ptr == dac_write_buffer_1){
+																	write_ptr = dac_write_buffer_2;
+																	read_ptr = dac_write_buffer_1;
+																} else {
+																	write_ptr = dac_write_buffer_1;
+																	read_ptr = dac_write_buffer_2;
+																}
                                                 				opensda_uart_transmit_string("/OK \r\n");
                                                 				break;
                                                 			default:
@@ -372,19 +404,24 @@ void PIT_IRQHandler(){
         
         clear_PIT_int_flag(PIT_TIMER_0);        /* acknowledge the IRQ in the timer*/
         
-        switch(i){
-                case 0:
-                        set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 1);
-                        break;
-                case DAC_WRITE_BUFFER_LEN/2:
-                        set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 0);
-                        break;
-                case DAC_WRITE_BUFFER_LEN:
-                        i = 0;
-                        break;
-        }
+        set_dac_output(read_ptr[i] >> dac_bit_shift);
         
-        set_dac_output(read_ptr[i++] >> dac_bit_shift);
+        switch(i){
+			case 0:
+				set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 1);
+				i++;
+				break;
+			case DAC_WRITE_BUFFER_LEN/2:
+				set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 0);
+				i++;
+				break;
+			case DAC_WRITE_BUFFER_LEN-1:
+				i = 0;
+				break;
+			default:
+				i++;
+				break;
+		}
         return;
 }
 
