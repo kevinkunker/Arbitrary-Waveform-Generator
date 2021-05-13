@@ -358,6 +358,7 @@ void Command_Interface_Task(void *pvParameters){
                                                         /* Return Status */
                                                         {
                                                         	char r_status[40] = {'\0'};
+                                                        	strcat(r_status, "/S ");
 															switch(timer_modulus){
 																case 24000000:
 																	strcat(r_status, "1");
