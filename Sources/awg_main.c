@@ -159,6 +159,7 @@ void Command_Interface_Task(void *pvParameters){
         BaseType_t StreamStatus;
         char rx_char, cmd_state;
         char command_buffer[CMD_BUF_LEN] = {'\0'};
+        char waveform;
         int i = 0;
         
         UART0_C2 |= UART0_C2_RIE_MASK;          /* enable the UART receive interrupt */
@@ -281,6 +282,7 @@ void Command_Interface_Task(void *pvParameters){
 																	read_ptr = dac_write_buffer_2;
 																}
                                                 				opensda_uart_transmit_string("/OK \r\n");
+                                                				waveform = 'S';
                                                 				break;
                                                 			case 'T':
                                                 			case 't':
@@ -294,6 +296,7 @@ void Command_Interface_Task(void *pvParameters){
 																	read_ptr = dac_write_buffer_2;
 																}
                                                 				opensda_uart_transmit_string("/OK \r\n");
+                                                				waveform = 'T';
                                                 				break;
                                                 			case 'Q':
                                                 			case 'q':
@@ -308,6 +311,7 @@ void Command_Interface_Task(void *pvParameters){
 																	read_ptr = dac_write_buffer_2;
 																}
                                                 				opensda_uart_transmit_string("/OK \r\n");
+                                                				waveform = 'Q';
                                                 				break;
                                                 			case 'A':
                                                 			case 'a':
@@ -321,6 +325,7 @@ void Command_Interface_Task(void *pvParameters){
 																	read_ptr = dac_write_buffer_2;
 																}
                                                 				opensda_uart_transmit_string("/OK \r\n");
+                                                				waveform = 'A';
                                                 				break;
                                                 			default:
                                                 			    opensda_uart_transmit_string("/E 2");
@@ -352,7 +357,7 @@ void Command_Interface_Task(void *pvParameters){
                                                 case 's':
                                                         /* Return Status */
                                                         {
-                                                        	char r_status[40] = "/S";
+                                                        	char r_status[40] = {'\0'};
 															switch(timer_modulus){
 																case 24000000:
 																	strcat(r_status, "1");
@@ -367,6 +372,60 @@ void Command_Interface_Task(void *pvParameters){
 																	strcat(r_status, "1000");
 																	break;																
 															}
+															strcat(r_status, " ");
+															switch (dac_bit_shift){
+															    case 0:
+															    	strcat(r_status, "1");
+															    	break;
+															    case 1:
+															    	strcat(r_status, "2");
+															    	break;
+															    case 2:
+															    	strcat(r_status, "4");
+															    	break;
+															    case 3:
+															    	strcat(r_status, "8");
+															    	break;
+															    case 4:
+															    	strcat(r_status, "16");
+															    	break;
+															    case 5:
+															    	strcat(r_status, "32");
+															    	break;
+															    case 6:
+															    	strcat(r_status, "64");
+															    	break;
+															    case 7:
+															    	strcat(r_status, "128");
+															    	break;
+															}
+															strcat(r_status, " ");
+															switch (waveform){
+															    case 'S':
+															    	strcat(r_status, "S");
+															    	break;
+															    case 'T':
+															    	strcat(r_status, "T");
+															    	break;
+															    case 'Q':
+															    	strcat(r_status, "Q");
+															    	break;
+															    case 'A':
+															    	strcat(r_status, "A");
+															    	break;
+															}
+															strcat(r_status, " ");
+															if((current_arb_buffer = ARB_buffer_a)){
+																	strcat(r_status, "A");
+															}
+															else{	
+																	strcat(r_status, "B");
+																	break;
+															}
+															strcat(r_status, "\r\n");
+															opensda_uart_transmit_string(r_status);
+															
+
                                                         }
                                                         break;
                                                 case 'W':
