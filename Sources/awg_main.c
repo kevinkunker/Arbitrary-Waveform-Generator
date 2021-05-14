@@ -161,6 +161,7 @@ void Command_Interface_Task(void *pvParameters){
         char command_buffer[CMD_BUF_LEN] = {'\0'};
         char waveform;
         int i = 0;
+        int point, data;
         
         UART0_C2 |= UART0_C2_RIE_MASK;          /* enable the UART receive interrupt */
         
@@ -416,7 +417,7 @@ void Command_Interface_Task(void *pvParameters){
 															    	break;
 															}
 															strcat(r_status, " ");
-															if((current_arb_buffer = ARB_buffer_a)){
+															if((current_arb_buffer == ARB_buffer_a)){
 																	strcat(r_status, "A");
 															}
 															else{	
@@ -425,14 +426,25 @@ void Command_Interface_Task(void *pvParameters){
 															}
 															strcat(r_status, "\r\n");
 															opensda_uart_transmit_string(r_status);
-															
-
                                                         }
                                                         break;
                                                 case 'W':
                                                 case 'w':
                                                 		/* Arb Data Write */
-                                                		break;
+                                                		point = (ascii_to_uint32(strtok(NULL, " ")));
+                                                		data = (ascii_to_uint32(strtok(NULL, " ")));
+                                                		if (data>4095){
+                                                			opensda_uart_transmit_string("/E 3");
+                                                		}
+                                                  		if (data<4096 && (current_arb_buffer == ARB_buffer_a)){
+                                                			ARB_buffer_b[point] = data;
+                                                			opensda_uart_transmit_string("/OK \r\n");
+                                                		}
+                                                  		if (data<4096 && (current_arb_buffer == ARB_buffer_b)){
+                                                  			ARB_buffer_a[point] = data;
+                                                  			opensda_uart_transmit_string("/OK \r\n");
+                                                  		}
+                                                  		break;
                                                 case 'R':
                                                 case 'r':
                                                 		/* Arb Data Read */
