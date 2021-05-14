@@ -87,7 +87,7 @@ int main(void){
                                 OPENSDA_UART_STOP_BITS_1, OPENSDA_UART_PARITY_OFF, OPENSDA_UART_PARITY_EVEN);
         
         /* send out a welcome message */
-        opensda_uart_transmit_string("ELT3050 FreeRTOS ADC Experiments \r\n");
+        opensda_uart_transmit_string("ELT3050 AWG Project \r\n");
 
         /* UART0 IRQ settings */
         NVIC_ClearPendingIRQ(UART0_IRQn);
@@ -431,6 +431,7 @@ void Command_Interface_Task(void *pvParameters){
                                                 case 'W':
                                                 case 'w':
                                                 		/* Arb Data Write */
+                                                        {
                                                 		point = (ascii_to_uint32(strtok(NULL, " ")));
                                                 		data = (ascii_to_uint32(strtok(NULL, " ")));
                                                 		if (data>4095){
@@ -444,11 +445,44 @@ void Command_Interface_Task(void *pvParameters){
                                                   			ARB_buffer_a[point] = data;
                                                   			opensda_uart_transmit_string("/OK \r\n");
                                                   		}
+                                                        }
                                                   		break;
                                                 case 'R':
                                                 case 'r':
                                                 		/* Arb Data Read */
-                                                		break;
+                                                        {
+                                                	    char ARB_data_read[15] = {'\0'};
+                                                	    char point_value_string[1];
+                                                	    char data_value_string[3];
+                                                	    
+                                                	    strcat(ARB_data_read, "/R ");
+                                                		
+                                                	    point = (ascii_to_uint32(strtok(NULL, " ")));
+                                            			
+                                              			if (point>99){
+                                                			opensda_uart_transmit_string("/E 3");
+                                                		}
+                                              			else{
+                                              				uint32_to_ascii(point,point_value_string);
+                                              				strcat(ARB_data_read, point_value_string);
+                                              				strcat(ARB_data_read, " ");
+                                              			}
+                                
+                                                  		if (point<100 && (current_arb_buffer == ARB_buffer_a)){
+                                                   			uint32_to_ascii(ARB_buffer_b[point], data_value_string);
+                                                   			strcat(ARB_data_read, data_value_string);
+                                                   			strcat(ARB_data_read, "\r\n");
+                                                   			opensda_uart_transmit_string(ARB_data_read);
+                                                   		}
+                                                  		if (point<100 && (current_arb_buffer == ARB_buffer_b)){
+                                                            uint32_to_ascii(ARB_buffer_a[point], data_value_string);
+                                                  		    strcat(ARB_data_read, data_value_string);
+                                                  		    strcat(ARB_data_read, "\r\n");
+                                                  		    opensda_uart_transmit_string(ARB_data_read);
+                                                        }
+                                                        }
+
+                                                  		break;
                                                 default:
                                                         /* Error messages */
                                                 	    /* Unrecognized command */
