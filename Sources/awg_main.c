@@ -43,7 +43,7 @@ const uint32_t triangle_data[] = {
 #define STRING_LENGTH 10 
 
 
-uint32_t timer_modulus = 2400000;                               /* bus clock cycles */
+uint32_t timer_modulus = 240000;                               /* bus clock cycles */
 uint32_t dac_write_buffer_1[DAC_WRITE_BUFFER_LEN] = {0};
 uint32_t dac_write_buffer_2[DAC_WRITE_BUFFER_LEN] = {0};
 uint32_t ARB_buffer_a[DAC_WRITE_BUFFER_LEN] = {0};
@@ -60,6 +60,7 @@ void UART0_IRQHandler(void);
 
 /* Handles */
 StreamBufferHandle_t  UART_Rx_StreamHandle;
+
 
 int main(void){
         /************************************************************
@@ -78,16 +79,26 @@ int main(void){
         enable_opensda_uart_clock();
         enable_pit_clock();
         enable_dac_clock();
-
+        
+        /* Enable PORTB GPIO MUX*/
+        
+        set_port_mux(PORTB_PERIPHERAL, 0, ALT1);
+        
         /************************************************************
-         *  Startup the OpenSDA UART (UART0)
-         ************************************************************/
+        * Enable PTB0 for sync output
+        ************************************************************/
+        init_gpio_pin(GPIOB_PERIPHERAL, 0, GPIO_OUT);
+        set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 0);
+        
+        /************************************************************
+        *  Startup the OpenSDA UART (UART0)
+        ************************************************************/
         init_opensda_uart_pins();
         init_opensda_uart(OPENSDA_UART_BAUD_CLOCK_MCGPLLCLKDIV2, OPENSDA_UART_BAUD_9600,
-                                OPENSDA_UART_STOP_BITS_1, OPENSDA_UART_PARITY_OFF, OPENSDA_UART_PARITY_EVEN);
+                          OPENSDA_UART_STOP_BITS_1, OPENSDA_UART_PARITY_OFF, OPENSDA_UART_PARITY_EVEN);
         
         /* send out a welcome message */
-        opensda_uart_transmit_string("ELT3050 AWG Project \r\n");
+        opensda_uart_transmit_string("ELT3050 AWG Final Project \r\n");
 
         /* UART0 IRQ settings */
         NVIC_ClearPendingIRQ(UART0_IRQn);
@@ -95,8 +106,8 @@ int main(void){
         NVIC_EnableIRQ(UART0_IRQn);
 
         /************************************************************
-         * startup the DAC, ADC and hardware timer
-         ************************************************************/
+        * startup the DAC, ADC and hardware timer
+        ************************************************************/
         init_dac();
         init_dac_pin();
         
@@ -112,7 +123,7 @@ int main(void){
         
         /************************************************************
         * command interface task
-     ************************************************************/
+        ************************************************************/
         xTaskCreate(Command_Interface_Task,                                 /* Pointer to the function that implements the task. */
                                 "Command Interface Task",                               /* Friendly name for debugging. */
                                 100,                                                    /* Stack depth (may need to be increased) */
@@ -121,8 +132,8 @@ int main(void){
                                 NULL);                                                  /* task handle, not used */
         
         /************************************************************
-     * create semaphores, queues, streams, etc.
-     ************************************************************/
+         * create semaphores, queues, streams, etc.
+         ************************************************************/
          
         UART_Rx_StreamHandle = xStreamBufferCreate(UART_STREAM_SIZE, UART_STREAM_TRIG_LEVEL);
         
@@ -130,16 +141,10 @@ int main(void){
          * start the scheduler. Should never return
          ************************************************************/
         vTaskStartScheduler();  
-        
-        /************************************************************
-        * Enable PTB0 for sync output
-        ************************************************************/
-        init_gpio_pin(GPIOB_PERIPHERAL, 0, 1);
-        set_gpio_pin_level(GPIOB_PERIPHERAL, 0, 0);
-                
+       
         /************************************************************
          * should never reach here unless something goes wrong 
-    ************************************************************/
+         ************************************************************/
                 for(;;) {}
                 return 0;
         
@@ -243,22 +248,22 @@ void Command_Interface_Task(void *pvParameters){
                                                         /* Set Frequency */
                                                         switch(ascii_to_uint32(strtok(NULL, " "))){
                                                             case 1:
-                                                            	timer_modulus = 2400000;
+                                                            	timer_modulus = 240000;
                                                                 set_PIT_modulus(PIT_TIMER_0, timer_modulus);
                                                                 opensda_uart_transmit_string("/OK \r\n");
                                                                 break;
                                                             case 10:
-                                                                timer_modulus = 240000;
-                                                            	set_PIT_modulus(PIT_TIMER_0, timer_modulus);
-                                                            	opensda_uart_transmit_string("/OK \r\n");
-                                                                break;
-                                                            case 100:
                                                                 timer_modulus = 24000;
                                                             	set_PIT_modulus(PIT_TIMER_0, timer_modulus);
                                                             	opensda_uart_transmit_string("/OK \r\n");
                                                                 break;
+                                                            case 100:
+                                                                timer_modulus = 2400;
+                                                            	set_PIT_modulus(PIT_TIMER_0, timer_modulus);
+                                                            	opensda_uart_transmit_string("/OK \r\n");
+                                                                break;
                                                             case 1000:
-                                                            	timer_modulus = 2400; 
+                                                            	timer_modulus = 240; 
                                                                 set_PIT_modulus(PIT_TIMER_0, timer_modulus);
                                                                 opensda_uart_transmit_string("/OK \r\n");
                                                                 break;
@@ -511,6 +516,7 @@ void PIT_IRQHandler(){
         clear_PIT_int_flag(PIT_TIMER_0);        /* acknowledge the IRQ in the timer*/
         
         set_dac_output(read_ptr[i] >> dac_bit_shift);
+        
         
         switch(i){
 			case 0:
