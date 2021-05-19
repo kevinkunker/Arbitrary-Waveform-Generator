@@ -33,10 +33,6 @@ const uint32_t triangle_data[] = {
 #include "triangle_data_100_points.txt"
 };
 
-const uint32_t square_data[] = {
-#include "square_data_100_points.txt"
-};
-
 /* serial parameters */
 #define UART_STREAM_SIZE                20
 #define UART_STREAM_TRIG_LEVEL  1
@@ -310,8 +306,14 @@ void Command_Interface_Task(void *pvParameters){
                                                 				waveform = 'T';
                                                 				break;
                                                 			case 'Q':
-                                                			case 'q':
-                                                   				memcpy(write_ptr, square_data, sizeof dac_write_buffer_1);
+                                                			case 'q': {
+                                                				int j;
+                                                   				for(j = 0; j < 50; j++){
+																	write_ptr[j] = 4095;
+																}
+																for(j = 50; j < 100; j++){
+																	write_ptr[j] = 0;
+																}
                                                 				/* Swap Buffers */
 																if(write_ptr == dac_write_buffer_1){
 																	write_ptr = dac_write_buffer_2;
@@ -323,6 +325,7 @@ void Command_Interface_Task(void *pvParameters){
                                                 				opensda_uart_transmit_string("/OK \r\n");
                                                 				waveform = 'Q';
                                                 				break;
+                                                			}
                                                 			case 'A':
                                                 			case 'a':
                                                 				memcpy(write_ptr, current_arb_buffer, sizeof dac_write_buffer_1);
@@ -351,11 +354,33 @@ void Command_Interface_Task(void *pvParameters){
                                                 			case 'A':
                                                 			case 'a':
                                                 				current_arb_buffer = ARB_buffer_a;
+                                                				if(waveform == 'A'){
+                                                					memcpy(write_ptr, current_arb_buffer, sizeof dac_write_buffer_1);
+																	/* Swap Buffers */
+																	if(write_ptr == dac_write_buffer_1){
+																		write_ptr = dac_write_buffer_2;
+																		read_ptr = dac_write_buffer_1;
+																	} else {
+																		write_ptr = dac_write_buffer_1;
+																		read_ptr = dac_write_buffer_2;
+																	}
+                                                				}
                                                 				opensda_uart_transmit_string("/OK \r\n");
                                                 				break;
                                                 			case 'B':
                                                 			case 'b':
                                                 				current_arb_buffer = ARB_buffer_b;
+                                                				if(waveform == 'A'){
+																	memcpy(write_ptr, current_arb_buffer, sizeof dac_write_buffer_1);
+																	/* Swap Buffers */
+																	if(write_ptr == dac_write_buffer_1){
+																		write_ptr = dac_write_buffer_2;
+																		read_ptr = dac_write_buffer_1;
+																	} else {
+																		write_ptr = dac_write_buffer_1;
+																		read_ptr = dac_write_buffer_2;
+																	}
+																}
                                                 				opensda_uart_transmit_string("/OK \r\n");
                                                 				break;
                                                 			default:
