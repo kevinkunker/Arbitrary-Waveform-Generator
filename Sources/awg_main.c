@@ -2,7 +2,7 @@
  * awg_main.c
  *
  *  Created on: Apr 27, 2021
- *      Author: Owner
+ *      Authors: Kevin Kunker, Josh Remillard
  */
 
 #include <stdlib.h>
@@ -33,6 +33,10 @@ const uint32_t triangle_data[] = {
 #include "triangle_data_100_points.txt"
 };
 
+const uint32_t square_data[] = {
+#include "square_data_100_points.txt"
+};
+
 /* serial parameters */
 #define UART_STREAM_SIZE                20
 #define UART_STREAM_TRIG_LEVEL  1
@@ -52,6 +56,7 @@ uint32_t *write_ptr = dac_write_buffer_1;
 uint32_t *read_ptr = dac_write_buffer_2;
 uint32_t *current_arb_buffer = ARB_buffer_a;
 uint32_t dac_bit_shift = 0;
+
 
 /* Function Prototypes */
 void Command_Interface_Task(void *pvParameters);
@@ -306,8 +311,7 @@ void Command_Interface_Task(void *pvParameters){
                                                 				break;
                                                 			case 'Q':
                                                 			case 'q':
-                                                				memset(write_ptr, 4095, (sizeof dac_write_buffer_1)/2);
-                                                				memset(write_ptr + 50, 0, (sizeof dac_write_buffer_1)/2);
+                                                   				memcpy(write_ptr, square_data, sizeof dac_write_buffer_1);
                                                 				/* Swap Buffers */
 																if(write_ptr == dac_write_buffer_1){
 																	write_ptr = dac_write_buffer_2;
@@ -355,7 +359,7 @@ void Command_Interface_Task(void *pvParameters){
                                                 				opensda_uart_transmit_string("/OK \r\n");
                                                 				break;
                                                 			default:
-                                                				opensda_uart_transmit_string("/OK \r\n");
+                                                				opensda_uart_transmit_string("/E 2");
                                                 			    break;
                                                 		}
                                                         break;
@@ -366,16 +370,16 @@ void Command_Interface_Task(void *pvParameters){
                                                         	char r_status[40] = {'\0'};
                                                         	strcat(r_status, "/S ");
 															switch(timer_modulus){
-																case 24000000:
+																case 240000:
 																	strcat(r_status, "1");
 																	break;
-																case 2400000:
+																case 24000:
 																	strcat(r_status, "10");
 																	break;
-																case 240000:
+																case 2400:
 																	strcat(r_status, "100");
 																	break;
-																case 24000:
+																case 240:
 																	strcat(r_status, "1000");
 																	break;																
 															}
@@ -427,7 +431,7 @@ void Command_Interface_Task(void *pvParameters){
 															}
 															else{	
 																	strcat(r_status, "B");
-																	break;
+																	
 															}
 															strcat(r_status, "\r\n");
 															opensda_uart_transmit_string(r_status);
