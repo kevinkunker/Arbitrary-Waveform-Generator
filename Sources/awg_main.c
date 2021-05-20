@@ -171,7 +171,19 @@ void Command_Interface_Task(void *pvParameters){
         
         UART0_C2 |= UART0_C2_RIE_MASK;          /* enable the UART receive interrupt */
         
+        /* Initialize with sine wave as default */
+        memcpy(write_ptr, sine_data, sizeof dac_write_buffer_1);
+		/* Swap Buffers */
+		if(write_ptr == dac_write_buffer_1){
+			write_ptr = dac_write_buffer_2;
+			read_ptr = dac_write_buffer_1;
+		} else {
+			write_ptr = dac_write_buffer_1;
+			read_ptr = dac_write_buffer_2;
+		}
+		waveform = 'S';
         cmd_state = COMMAND_IDLE;
+        
         for(;;){
                 /* receive a character from the stream buffer with max delay, data in rx_char */
                 StreamStatus = xStreamBufferReceive(UART_Rx_StreamHandle, &rx_char, 1, 0);
